@@ -338,16 +338,20 @@ The application uses shadcn/ui components with a custom design system:
 ## 🚀 Deployment
 
 ### AWS Amplify (Current Deployment)
-The application is currently deployed to AWS Amplify with Aurora DSQL backend.
+The application is currently deployed to AWS Amplify with Aurora DSQL backend using Git-based deployment.
 
-**Live Application:** https://d1ph18zqpzftga.amplifyapp.com
+**Live Application:** https://d1ph18zqpzftga.amplifyapp.com  
+**GitHub Repository:** https://github.com/iguana/koalashop
 
-#### Deployment Process
+#### Git-Based Deployment (Recommended)
+The application uses automatic Git-based deployment with AWS Amplify. Every push to the main branch triggers an automatic build and deployment.
+
+#### Setup Process
 1. **AWS Resources Created:**
    - IAM Policy: `AuroraDSQLAccess`
    - IAM Role: `AmplifyAuroraDSQLRole`
    - Amplify App: `koalashop` (ID: `d1ph18zqpzftga`)
-   - S3 Bucket: `amplify-koalashop-deployments-*`
+   - GitHub Repository: Connected for auto-build
 
 2. **Environment Variables Configured:**
    - `AURORA_DSQL_HOST`: Aurora DSQL cluster endpoint
@@ -357,12 +361,47 @@ The application is currently deployed to AWS Amplify with Aurora DSQL backend.
    - `USE_AURORA_DSQL`: true
    - `FALLBACK_TO_SUPABASE`: false
 
-3. **Deployment Method:**
-   - ZIP file deployment via AWS CLI
-   - Automatic build and deployment
-   - Mobile screenshots generated for verification
+3. **Build Configuration (`amplify.yml`):**
+   ```yaml
+   version: 1
+   frontend:
+     phases:
+       preBuild:
+         commands:
+           - npm install --legacy-peer-deps
+       build:
+         commands:
+           - npm run build
+     artifacts:
+       baseDirectory: .next
+       files:
+         - '**/*'
+     cache:
+       paths:
+         - node_modules/**/*
+         - .next/cache/**/*
+   ```
 
-#### Manual Deployment Steps
+#### Deployment Workflow
+1. **Make changes** to your code locally
+2. **Commit and push** to GitHub:
+   ```bash
+   git add .
+   git commit -m "Your commit message"
+   git push origin main
+   ```
+3. **Automatic deployment** - Amplify detects the push and starts building
+4. **Monitor progress** in AWS Amplify console or via CLI:
+   ```bash
+   # List recent deployments
+   aws amplify list-jobs --app-id d1ph18zqpzftga --branch-name main --region us-west-1
+   
+   # Check specific deployment status
+   aws amplify get-job --app-id d1ph18zqpzftga --branch-name main --job-id <job-id> --region us-west-1
+   ```
+
+#### Manual Deployment (Legacy - Not Recommended)
+If you need to deploy manually (not recommended with Git setup):
 ```bash
 # Build the application first
 pnpm build
@@ -377,10 +416,7 @@ aws amplify create-deployment --app-id d1ph18zqpzftga --branch-name main --regio
 curl -X PUT -T koalashop-deployment.zip "https://aws-amplify-prod-us-west-1-artifacts.s3.us-west-1.amazonaws.com/..."
 
 # Start deployment
-aws amplify start-deployment --app-id d1ph18zqpzftga --branch-name main --job-id 2 --region us-west-1
-
-# Check deployment status
-aws amplify get-job --app-id d1ph18zqpzftga --branch-name main --job-id 2 --region us-west-1
+aws amplify start-deployment --app-id d1ph18zqpzftga --branch-name main --job-id <job-id> --region us-west-1
 ```
 
 ### Other Platforms
@@ -466,11 +502,14 @@ For support and questions:
 
 ### What Was Accomplished
 ✅ **Complete Aurora DSQL Migration** - Migrated from Supabase to Amazon Aurora DSQL  
-✅ **AWS Amplify Deployment** - Successfully deployed with ZIP file method  
+✅ **Git-Based Deployment** - Successfully set up automatic Git deployment with AWS Amplify  
+✅ **GitHub Integration** - Connected repository for auto-build on push  
 ✅ **IAM Authentication** - Configured proper AWS IAM roles and policies  
 ✅ **Database Schema** - Created Aurora DSQL-compatible schema  
 ✅ **Sample Data** - Populated database with test data  
 ✅ **API Migration** - Updated all API routes to use Aurora DSQL  
+✅ **Dependency Resolution** - Fixed React 19 compatibility issues  
+✅ **Build Configuration** - Optimized amplify.yml for SSR deployment  
 ✅ **Local Testing** - Verified all functionality works locally  
 ✅ **Production Deployment** - Live application at https://d1ph18zqpzftga.amplifyapp.com  
 
@@ -478,8 +517,11 @@ For support and questions:
 - **Aurora DSQL Client**: Custom client using AWS CLI for auth token generation
 - **Database Compatibility**: Adapted PostgreSQL schema for Aurora DSQL limitations
 - **Authentication**: AWS IAM-based authentication instead of traditional passwords
-- **Deployment**: ZIP-based deployment to AWS Amplify
+- **Git-Based Deployment**: Automatic deployment pipeline with GitHub integration
+- **Dependency Management**: Resolved React 19 compatibility with legacy packages
+- **SSR Configuration**: Optimized Next.js SSR build for AWS Amplify
 - **Error Handling**: Comprehensive error handling and fallback mechanisms
+- **Auto-Build Pipeline**: Seamless CI/CD with automatic deployments on push
 
 ---
 
