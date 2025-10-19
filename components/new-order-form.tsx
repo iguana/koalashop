@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
-import type { Customer, Product } from "@/types/database"
+import { apiClient, type Customer, type Product } from "@/lib/api-client"
 
 interface OrderItem {
   id: string
@@ -36,11 +36,8 @@ export default function NewOrderForm({ customer, onBack, onOrderCreated }: NewOr
     const fetchProducts = async () => {
       setIsLoading(true)
       try {
-        const response = await fetch("/api/products")
-        const data = await response.json()
-        if (data.products) {
-          setProducts(data.products)
-        }
+        const data = await apiClient.getProducts()
+        setProducts(data)
       } catch (error) {
         console.error("Error fetching products:", error)
       } finally {
@@ -131,29 +128,17 @@ export default function NewOrderForm({ customer, onBack, onOrderCreated }: NewOr
 
     setIsSaving(true)
     try {
-      const response = await fetch("/api/orders", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          customer_id: customer.id,
-          order_name: orderName.trim(),
-          order_items: orderItems.map((item) => ({
-            product_id: item.product_id,
-            quantity: item.quantity,
-            weight_oz: item.weight_oz,
-            unit_price: item.unit_price,
-          })),
-        }),
+      await apiClient.createOrder({
+        customer_id: customer.id,
+        order_items: orderItems.map((item) => ({
+          product_id: item.product_id,
+          quantity: item.quantity,
+          weight_oz: item.weight_oz,
+          unit_price: item.unit_price,
+        })),
       })
 
-      if (response.ok) {
-        onOrderCreated()
-      } else {
-        const error = await response.json()
-        alert(`Failed to create order: ${error.error || "Unknown error"}`)
-      }
+      onOrderCreated()
     } catch (error) {
       console.error("Error creating order:", error)
       alert("Failed to create order. Please try again.")

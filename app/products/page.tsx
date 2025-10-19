@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import ProductForm from "@/components/product-form"
-import type { Product } from "@/types/database"
+import { apiClient, type Product } from "@/lib/api-client"
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
@@ -32,11 +32,8 @@ export default function ProductsPage() {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch("/api/products")
-      const data = await response.json()
-      if (data.products) {
-        setProducts(data.products)
-      }
+      const data = await apiClient.getProducts()
+      setProducts(data)
     } catch (error) {
       console.error("Error fetching products:", error)
     } finally {
@@ -46,16 +43,9 @@ export default function ProductsPage() {
 
   const handleCreateProduct = async (productData: Omit<Product, "id" | "created_at">) => {
     try {
-      const response = await fetch("/api/products", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(productData),
-      })
-      
-      if (response.ok) {
-        await fetchProducts()
-        setIsDialogOpen(false)
-      }
+      await apiClient.createProduct(productData)
+      await fetchProducts()
+      setIsDialogOpen(false)
     } catch (error) {
       console.error("Error creating product:", error)
     }
@@ -66,40 +56,21 @@ export default function ProductsPage() {
     
     try {
       console.log('Updating product with data:', productData)
-      const response = await fetch(`/api/products/${editingProduct.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(productData),
-      })
-      
-      console.log('Update response status:', response.status)
-      
-      if (response.ok) {
-        const result = await response.json()
-        console.log('Update successful:', result)
-        await fetchProducts()
-        setEditingProduct(null)
-        setIsDialogOpen(false)
-      } else {
-        const errorData = await response.json()
-        console.error('Update failed:', errorData)
-        alert(`Failed to update product: ${errorData.error || 'Unknown error'}`)
-      }
+      await apiClient.updateProduct(editingProduct.id, productData)
+      console.log('Update successful')
+      await fetchProducts()
+      setEditingProduct(null)
+      setIsDialogOpen(false)
     } catch (error) {
       console.error("Error updating product:", error)
-      alert(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      alert(`Failed to update product: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
 
   const handleDeleteProduct = async (productId: string) => {
     try {
-      const response = await fetch(`/api/products/${productId}`, {
-        method: "DELETE",
-      })
-      
-      if (response.ok) {
-        await fetchProducts()
-      }
+      await apiClient.deleteProduct(productId)
+      await fetchProducts()
     } catch (error) {
       console.error("Error deleting product:", error)
     }

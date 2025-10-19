@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import OrderForm from "@/components/order-form"
-import type { Order, Customer, Product } from "@/types/database"
+import { apiClient, type Order, type Customer, type Product } from "@/lib/api-client"
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([])
@@ -31,8 +31,8 @@ export default function OrdersPage() {
 
   useEffect(() => {
     let filtered = orders.filter(order =>
-      order.order_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customer?.name.toLowerCase().includes(searchTerm.toLowerCase())
+      order.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.customer_email?.toLowerCase().includes(searchTerm.toLowerCase())
     )
 
     if (statusFilter !== "all") {
@@ -44,11 +44,8 @@ export default function OrdersPage() {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch("/api/orders")
-      const data = await response.json()
-      if (data.orders) {
-        setOrders(data.orders)
-      }
+      const data = await apiClient.getOrders()
+      setOrders(data)
     } catch (error) {
       console.error("Error fetching orders:", error)
     } finally {
@@ -58,11 +55,8 @@ export default function OrdersPage() {
 
   const fetchCustomers = async () => {
     try {
-      const response = await fetch("/api/customers")
-      const data = await response.json()
-      if (data.customers) {
-        setCustomers(data.customers)
-      }
+      const data = await apiClient.getCustomers()
+      setCustomers(data)
     } catch (error) {
       console.error("Error fetching customers:", error)
     }
@@ -70,11 +64,8 @@ export default function OrdersPage() {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch("/api/products")
-      const data = await response.json()
-      if (data.products) {
-        setProducts(data.products)
-      }
+      const data = await apiClient.getProducts()
+      setProducts(data)
     } catch (error) {
       console.error("Error fetching products:", error)
     }
@@ -82,16 +73,9 @@ export default function OrdersPage() {
 
   const handleCreateOrder = async (orderData: any) => {
     try {
-      const response = await fetch("/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orderData),
-      })
-      
-      if (response.ok) {
-        await fetchOrders()
-        setIsDialogOpen(false)
-      }
+      await apiClient.createOrder(orderData)
+      await fetchOrders()
+      setIsDialogOpen(false)
     } catch (error) {
       console.error("Error creating order:", error)
     }
@@ -101,17 +85,10 @@ export default function OrdersPage() {
     if (!editingOrder) return
     
     try {
-      const response = await fetch(`/api/orders/${editingOrder.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orderData),
-      })
-      
-      if (response.ok) {
-        await fetchOrders()
-        setEditingOrder(null)
-        setIsDialogOpen(false)
-      }
+      await apiClient.updateOrder(editingOrder.id, orderData)
+      await fetchOrders()
+      setEditingOrder(null)
+      setIsDialogOpen(false)
     } catch (error) {
       console.error("Error updating order:", error)
     }
@@ -119,13 +96,8 @@ export default function OrdersPage() {
 
   const handleDeleteOrder = async (orderId: string) => {
     try {
-      const response = await fetch(`/api/orders/${orderId}`, {
-        method: "DELETE",
-      })
-      
-      if (response.ok) {
-        await fetchOrders()
-      }
+      await apiClient.deleteOrder(orderId)
+      await fetchOrders()
     } catch (error) {
       console.error("Error deleting order:", error)
     }
@@ -233,8 +205,8 @@ export default function OrdersPage() {
           {filteredOrders.map((order) => (
             <Card key={order.id} className="hover:shadow-md transition-shadow">
               <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <CardTitle className="text-lg font-semibold">{order.order_name}</CardTitle>
+                  <div className="flex items-start justify-between">
+                    <CardTitle className="text-lg font-semibold">Order #{order.id.slice(-8)}</CardTitle>
                   <div className="flex gap-1">
                     <Button
                       variant="ghost"
@@ -256,7 +228,7 @@ export default function OrdersPage() {
                         <AlertDialogHeader>
                           <AlertDialogTitle>Delete Order</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Are you sure you want to delete "{order.order_name}"? This action cannot be undone.
+                            Are you sure you want to delete Order #{order.id.slice(-8)}? This action cannot be undone.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -277,7 +249,7 @@ export default function OrdersPage() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Customer:</span>
-                    <span className="text-sm font-medium">{order.customer?.name}</span>
+                    <span className="text-sm font-medium">{order.customer_name || 'Unknown'}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Status:</span>

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { Search, User } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
-import type { Customer } from "@/types/database"
+import { apiClient, type Customer } from "@/lib/api-client"
 
 interface CustomerSearchProps {
   onCustomerSelect: (customer: Customer) => void
@@ -22,13 +22,9 @@ export default function CustomerSearch({ onCustomerSelect }: CustomerSearchProps
     const loadAllCustomers = async () => {
       setIsLoading(true)
       try {
-        const response = await fetch("/api/customers")
-        const data = await response.json()
-
-        if (data.customers) {
-          setAllCustomers(data.customers)
-          setFilteredCustomers(data.customers)
-        }
+        const data = await apiClient.getCustomers()
+        setAllCustomers(data)
+        setFilteredCustomers(data)
       } catch (error) {
         console.error("Error loading customers:", error)
       } finally {

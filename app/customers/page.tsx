@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import CustomerForm from "@/components/customer-form"
-import type { Customer } from "@/types/database"
+import { apiClient, type Customer } from "@/lib/api-client"
 
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([])
@@ -34,11 +34,8 @@ export default function CustomersPage() {
 
   const fetchCustomers = async () => {
     try {
-      const response = await fetch("/api/customers")
-      const data = await response.json()
-      if (data.customers) {
-        setCustomers(data.customers)
-      }
+      const data = await apiClient.getCustomers()
+      setCustomers(data)
     } catch (error) {
       console.error("Error fetching customers:", error)
     } finally {
@@ -46,38 +43,24 @@ export default function CustomersPage() {
     }
   }
 
-  const handleCreateCustomer = async (customerData: Omit<Customer, "id" | "created_at" | "updated_at">) => {
+  const handleCreateCustomer = async (customerData: Omit<Customer, "id" | "created_at">) => {
     try {
-      const response = await fetch("/api/customers", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(customerData),
-      })
-      
-      if (response.ok) {
-        await fetchCustomers()
-        setIsDialogOpen(false)
-      }
+      await apiClient.createCustomer(customerData)
+      await fetchCustomers()
+      setIsDialogOpen(false)
     } catch (error) {
       console.error("Error creating customer:", error)
     }
   }
 
-  const handleUpdateCustomer = async (customerData: Omit<Customer, "id" | "created_at" | "updated_at">) => {
+  const handleUpdateCustomer = async (customerData: Omit<Customer, "id" | "created_at">) => {
     if (!editingCustomer) return
     
     try {
-      const response = await fetch(`/api/customers/${editingCustomer.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(customerData),
-      })
-      
-      if (response.ok) {
-        await fetchCustomers()
-        setEditingCustomer(null)
-        setIsDialogOpen(false)
-      }
+      await apiClient.updateCustomer(editingCustomer.id, customerData)
+      await fetchCustomers()
+      setEditingCustomer(null)
+      setIsDialogOpen(false)
     } catch (error) {
       console.error("Error updating customer:", error)
     }
@@ -85,13 +68,8 @@ export default function CustomersPage() {
 
   const handleDeleteCustomer = async (customerId: string) => {
     try {
-      const response = await fetch(`/api/customers/${customerId}`, {
-        method: "DELETE",
-      })
-      
-      if (response.ok) {
-        await fetchCustomers()
-      }
+      await apiClient.deleteCustomer(customerId)
+      await fetchCustomers()
     } catch (error) {
       console.error("Error deleting customer:", error)
     }
