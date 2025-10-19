@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { Pool } from 'pg';
-import { DSQLClient, GenerateDbConnectAuthTokenCommand } from '@aws-sdk/client-dsql';
+import { Signer } from '@aws-sdk/rds-signer';
 
 // Database connection
 let pool: Pool | null = null;
@@ -30,19 +30,18 @@ const createAuroraPool = async () => {
       region: config.region
     });
     
-    const dsqlClient = new DSQLClient({ region: config.region });
-    const command = new GenerateDbConnectAuthTokenCommand({
+    const signer = new Signer({
+      region: config.region,
       hostname: config.host,
       port: config.port,
       username: 'admin'
     });
     
-    console.log("Sending GenerateDbConnectAuthTokenCommand...");
-    const response = await dsqlClient.send(command);
-    const authToken = response.authToken;
+    console.log("Generating auth token...");
+    const authToken = await signer.getAuthToken();
     
     if (!authToken) {
-      throw new Error('Failed to generate auth token - no token in response');
+      throw new Error('Failed to generate auth token');
     }
     
     console.log("Auth token generated successfully");
