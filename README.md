@@ -67,6 +67,7 @@ A modern, mobile-first order management system built with Next.js 15, React 19, 
 - **ESLint** - Code linting
 - **PostCSS** - CSS processing
 - **Vercel Analytics** - Performance monitoring
+- **AWS Amplify CLI (ampx)** - Modern Amplify backend tooling
 
 ## 📁 Project Structure
 
@@ -513,6 +514,19 @@ The application uses automatic Git-based deployment with AWS Amplify. Every push
          - .next/cache/**/*
    ```
 
+4. **Amplify CLI Integration:**
+   The project includes the modern AWS Amplify CLI (`ampx`) for enhanced deployment management:
+   ```bash
+   # Generate post-deployment artifacts
+   pnpm ampx generate
+   
+   # Start sandbox for local testing
+   pnpm ampx sandbox
+   
+   # Get deployment troubleshooting info
+   pnpm ampx info
+   ```
+
 #### Deployment Workflow
 1. **Make changes** to your code locally
 2. **Commit and push** to GitHub:
@@ -569,6 +583,36 @@ The app can be deployed to any platform supporting Next.js:
 - Run SQL scripts for schema changes
 - Monitor performance with AWS CloudWatch
 - Generate auth tokens: `aws dsql generate-db-connect-auth-token --identifier tfthqqgcj6tcmvrwthlasn2rm4 --region us-west-2`
+
+### AWS Amplify CLI (ampx)
+The project now includes the modern AWS Amplify CLI tool (`ampx`) for enhanced backend management:
+
+```bash
+# View available commands
+pnpm ampx help
+
+# Generate post-deployment artifacts
+pnpm ampx generate
+
+# Start sandbox for local development
+pnpm ampx sandbox
+
+# Get troubleshooting information
+pnpm ampx info
+
+# Manage Amplify notices and notifications
+pnpm ampx notices
+
+# Configure Amplify settings
+pnpm ampx configure
+```
+
+**Key Features:**
+- **Sandbox Mode**: Local development environment for Amplify backends
+- **Post-deployment Artifacts**: Generate necessary files after deployment
+- **Troubleshooting**: Built-in diagnostic tools for debugging
+- **Notices Management**: Handle important notifications and updates
+- **Pipeline Integration**: CI/CD pipeline deployment support
 
 ### Testing
 ```bash
