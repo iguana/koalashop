@@ -1,8 +1,5 @@
 import { Pool } from 'pg'
-import { exec } from 'child_process'
-import { promisify } from 'util'
-
-const execAsync = promisify(exec)
+import { DSQLClient, GenerateDbConnectAuthTokenCommand } from '@aws-sdk/client-dsql'
 
 // Aurora DSQL connection configuration
 interface AuroraConfig {
@@ -18,7 +15,7 @@ const getAuroraConfig = (): AuroraConfig => {
   const host = process.env.AURORA_DSQL_HOST
   const port = parseInt(process.env.AURORA_DSQL_PORT || '5432')
   const database = process.env.AURORA_DSQL_DATABASE || 'postgres'
-  const region = process.env.AWS_REGION || 'us-east-1'
+  const region = process.env.AWS_REGION || process.env.AURORA_DSQL_REGION || 'us-west-2'
   const iamRoleArn = process.env.AURORA_DSQL_IAM_ROLE_ARN
 
   if (!host) {
@@ -28,17 +25,26 @@ const getAuroraConfig = (): AuroraConfig => {
   return { host, port, database, region, iamRoleArn }
 }
 
-// Create Aurora DSQL connection pool with IAM authentication
+// Create Aurora DSQL connection pool with IAM authentication using AWS SDK
 export const createAuroraPool = async () => {
   const config = getAuroraConfig()
   
-  // Generate auth token using AWS CLI
-  const clusterId = config.host.split('.')[0]
-  const command = `aws dsql generate-db-connect-admin-auth-token --hostname ${config.host} --region ${config.region}`
-  
   try {
-    const { stdout } = await execAsync(command)
-    const authToken = stdout.trim()
+    // Use AWS SDK instead of CLI commands
+    const dsqlClient = new DSQLClient({ region: config.region })
+    
+    const command = new GenerateDbConnectAuthTokenCommand({
+      hostname: config.host,
+      port: config.port,
+      username: 'admin'
+    })
+    
+    const response = await dsqlClient.send(command)
+    const authToken = response.authToken
+    
+    if (!authToken) {
+      throw new Error('Failed to generate auth token')
+    }
     
     const poolConfig: any = {
       host: config.host,
