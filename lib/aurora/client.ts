@@ -30,6 +30,13 @@ export const createAuroraPool = async () => {
   const config = getAuroraConfig()
   
   try {
+    console.log("Creating Aurora DSQL connection with config:", {
+      host: config.host,
+      port: config.port,
+      database: config.database,
+      region: config.region
+    })
+    
     // Use AWS SDK instead of CLI commands
     const dsqlClient = new DSQLClient({ region: config.region })
     
@@ -39,12 +46,15 @@ export const createAuroraPool = async () => {
       username: 'admin'
     })
     
+    console.log("Sending GenerateDbConnectAuthTokenCommand...")
     const response = await dsqlClient.send(command)
     const authToken = response.authToken
     
     if (!authToken) {
-      throw new Error('Failed to generate auth token')
+      throw new Error('Failed to generate auth token - no token in response')
     }
+    
+    console.log("Auth token generated successfully")
     
     const poolConfig: any = {
       host: config.host,
@@ -58,9 +68,22 @@ export const createAuroraPool = async () => {
       connectionTimeoutMillis: 2000,
     }
 
-    return new Pool(poolConfig)
+    console.log("Creating PostgreSQL pool...")
+    const pool = new Pool(poolConfig)
+    
+    // Test the connection
+    console.log("Testing database connection...")
+    const testResult = await pool.query('SELECT NOW() as current_time')
+    console.log("Database connection test successful:", testResult.rows[0])
+    
+    return pool
   } catch (error) {
-    console.error('Failed to generate Aurora DSQL auth token:', error)
+    console.error('Failed to create Aurora DSQL connection:', error)
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : undefined
+    })
     throw error
   }
 }
