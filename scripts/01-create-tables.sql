@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS products (
   name VARCHAR(255) NOT NULL,
   description TEXT,
   unit_price DECIMAL(10,2) NOT NULL,
+  units VARCHAR(10) NOT NULL DEFAULT 'oz' CHECK (units IN ('oz', 'each', 'lbs', 'grams')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 

@@ -96,7 +96,7 @@ export default function HomePage() {
 
   if (!selectedCustomer) {
     return (
-      <div className="min-h-screen bg-background p-4">
+      <div className="p-4">
         <div className="max-w-md mx-auto">
           <div className="mb-8 text-center">
             <h1 className="text-2xl font-bold text-foreground mb-2">Smoked Fish Orders</h1>
@@ -110,9 +110,9 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="p-4">
       {/* Header */}
-      <div className="sticky top-0 bg-background border-b border-border p-4 z-40">
+      <div className="sticky top-16 bg-background border-b border-border p-4 z-40">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" onClick={handleBackToSearch} className="p-2">
             <ArrowLeft className="h-4 w-4" />

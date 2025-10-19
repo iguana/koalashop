@@ -7,18 +7,42 @@ A modern, mobile-first order management system built with Next.js 15, React 19, 
 ## 🚀 Features
 
 ### Core Functionality
-- **Customer Management**: Search and manage customer information with contact details
-- **Order Creation**: Create new orders with multiple products and custom quantities
-- **Order Tracking**: View order details, status, and item breakdowns
-- **Product Catalog**: Manage smoked fish products with pricing per ounce
-- **Real-time Search**: Debounced customer search with instant results
+- **Complete CRUD Operations**: Full Create, Read, Update, Delete interfaces for all entities
+- **Customer Management**: Comprehensive customer database with search, add, edit, and delete
+- **Product Catalog**: Complete product management with pricing and descriptions
+- **Order Management**: Full order lifecycle management with multiple items
+- **Navigation System**: Top navigation menu for easy access to all sections
+- **Real-time Search**: Instant search across customers, products, and orders
+
+### CRUD Interface Features
+- **Customers CRUD**: 
+  - ✅ Create new customers with contact information
+  - ✅ View all customers in responsive card layout
+  - ✅ Search customers by name, email, or phone
+  - ✅ Edit customer details inline
+  - ✅ Delete customers with confirmation dialogs
+- **Products CRUD**:
+  - ✅ Add new products with pricing
+  - ✅ View product catalog with pricing display
+  - ✅ Search products by name or description
+  - ✅ Edit product information and pricing
+  - ✅ Delete products with confirmation
+- **Orders CRUD**:
+  - ✅ Create orders with multiple items
+  - ✅ View all orders with customer and status information
+  - ✅ Search orders by name or customer
+  - ✅ Filter orders by status (All, Pending, Completed, Cancelled)
+  - ✅ Edit order details and items
+  - ✅ Delete orders with confirmation
 
 ### Technical Features
 - **Mobile-First Design**: Optimized for mobile devices with responsive UI
 - **Modern UI Components**: Built with shadcn/ui and Radix UI primitives
 - **Type Safety**: Full TypeScript implementation with strict type checking
-- **Database Integration**: Supabase PostgreSQL with real-time capabilities
+- **Database Integration**: Amazon Aurora DSQL with IAM authentication
 - **Performance Optimized**: Server-side rendering with Next.js App Router
+- **Form Validation**: Client and server-side validation with Zod schemas
+- **Error Handling**: Comprehensive error handling throughout the application
 
 ## 🛠️ Tech Stack
 
@@ -50,18 +74,37 @@ A modern, mobile-first order management system built with Next.js 15, React 19, 
 koalashop/
 ├── app/                          # Next.js App Router
 │   ├── api/                      # API routes
-│   │   ├── customers/            # Customer endpoints
-│   │   │   ├── [id]/orders/      # Customer orders
-│   │   │   └── search/           # Customer search
-│   │   ├── orders/               # Order management
-│   │   └── products/             # Product catalog
+│   │   ├── customers/            # Customer CRUD endpoints
+│   │   │   ├── [id]/             # Individual customer operations
+│   │   │   │   ├── route.ts      # GET, PUT, DELETE customer
+│   │   │   │   └── orders/       # Customer orders
+│   │   │   ├── route.ts          # GET all customers, POST new customer
+│   │   │   └── search/           # Customer search endpoint
+│   │   ├── orders/               # Order CRUD endpoints
+│   │   │   ├── [id]/             # Individual order operations
+│   │   │   │   └── route.ts      # GET, PUT, DELETE order
+│   │   │   └── route.ts          # GET all orders, POST new order
+│   │   └── products/             # Product CRUD endpoints
+│   │       ├── [id]/             # Individual product operations
+│   │       │   └── route.ts      # GET, PUT, DELETE product
+│   │       └── route.ts          # GET all products, POST new product
+│   ├── customers/                # Customer CRUD page
+│   │   └── page.tsx              # Customer management interface
+│   ├── orders/                   # Order CRUD page
+│   │   └── page.tsx              # Order management interface
+│   ├── products/                 # Product CRUD page
+│   │   └── page.tsx              # Product management interface
 │   ├── globals.css               # Global styles
-│   ├── layout.tsx                # Root layout
-│   └── page.tsx                  # Home page
+│   ├── layout.tsx                # Root layout with navigation
+│   └── page.tsx                  # Dashboard/home page
 ├── components/                   # React components
 │   ├── ui/                       # shadcn/ui components
+│   ├── navigation.tsx            # Top navigation menu
 │   ├── customer-search.tsx       # Customer search interface
-│   ├── new-order-form.tsx        # Order creation form
+│   ├── customer-form.tsx         # Customer CRUD form
+│   ├── product-form.tsx          # Product CRUD form
+│   ├── order-form.tsx            # Order CRUD form
+│   ├── new-order-form.tsx        # Order creation form (legacy)
 │   ├── order-details.tsx         # Order details view
 │   └── theme-provider.tsx        # Theme management
 ├── lib/                          # Utility libraries
@@ -101,7 +144,8 @@ koalashop/
 - `id` (UUID, Primary Key)
 - `name` (VARCHAR, Required)
 - `description` (TEXT, Optional)
-- `unit_price` (DECIMAL, Required - price per ounce)
+- `unit_price` (DECIMAL, Required - price per unit)
+- `units` (VARCHAR, Required - 'oz', 'each', 'lbs', or 'grams', defaults to 'oz')
 - `created_at` (Timestamp)
 
 #### `orders`
@@ -270,70 +314,157 @@ The application supports a hybrid mode where you can switch between Aurora DSQL 
 
 ## 📱 Usage
 
-### Customer Search
-1. Enter customer name, email, or phone number
-2. Select from search results
-3. View customer orders or create new orders
+### Navigation
+The application features a top navigation menu with four main sections:
+- **Dashboard** (`/`) - Original customer search and order management
+- **Customers** (`/customers`) - Full customer CRUD interface
+- **Products** (`/products`) - Full product CRUD interface  
+- **Orders** (`/orders`) - Full order CRUD interface
 
-### Creating Orders
-1. Select a customer
-2. Click "New Order"
-3. Enter order name
-4. Add products with quantities and weights
-5. Review total and save
+### Customer Management
+1. Navigate to **Customers** section
+2. **View all customers** in responsive card layout
+3. **Search customers** by name, email, or phone
+4. **Add new customer** using the "Add Customer" button
+5. **Edit customer** details by clicking the edit icon
+6. **Delete customer** with confirmation dialog
+
+### Product Management
+1. Navigate to **Products** section
+2. **View product catalog** with pricing information
+3. **Search products** by name or description
+4. **Add new product** with name, description, and pricing
+5. **Edit product** information and pricing
+6. **Delete product** with confirmation dialog
 
 ### Order Management
-1. View order history for each customer
-2. Click on orders to see detailed breakdowns
-3. Track order status (pending/completed)
+1. Navigate to **Orders** section
+2. **View all orders** with customer and status information
+3. **Search orders** by order name or customer
+4. **Filter orders** by status (All, Pending, Completed, Cancelled)
+5. **Add new order** with customer selection and multiple items
+6. **Edit order** details and items
+7. **Delete order** with confirmation dialog
+
+### Dashboard (Legacy)
+1. **Customer Search**: Enter customer name, email, or phone number
+2. **Select Customer**: Choose from search results
+3. **View Orders**: See customer's order history
+4. **Create Orders**: Add new orders for selected customer
+5. **Order Details**: Click on orders to see detailed breakdowns
 
 ## 🔧 API Endpoints
 
-### Customers
+### Complete CRUD API
+
+#### Customers
+- `GET /api/customers` - Get all customers
+- `POST /api/customers` - Create new customer
+- `GET /api/customers/[id]` - Get specific customer
+- `PUT /api/customers/[id]` - Update customer
+- `DELETE /api/customers/[id]` - Delete customer
 - `GET /api/customers/search?q={query}` - Search customers
 - `GET /api/customers/[id]/orders` - Get customer orders
 
-### Orders
-- `POST /api/orders` - Create new order
-  ```json
-  {
-    "customer_id": "uuid",
-    "order_name": "string",
-    "order_items": [
-      {
-        "product_id": "uuid",
-        "quantity": 1,
-        "weight_oz": 8.0,
-        "unit_price": 24.99
-      }
-    ]
-  }
-  ```
-
-### Products
+#### Products
 - `GET /api/products` - Get all products
+- `POST /api/products` - Create new product
+- `GET /api/products/[id]` - Get specific product
+- `PUT /api/products/[id]` - Update product
+- `DELETE /api/products/[id]` - Delete product
+
+#### Orders
+- `GET /api/orders` - Get all orders with customer and item details
+- `POST /api/orders` - Create new order
+- `GET /api/orders/[id]` - Get specific order with details
+- `PUT /api/orders/[id]` - Update order
+- `DELETE /api/orders/[id]` - Delete order
+
+### API Request/Response Examples
+
+#### Create Customer
+```bash
+POST /api/customers
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "phone": "(555) 123-4567",
+  "address": "123 Main St, City, State"
+}
+```
+
+#### Create Product
+```bash
+POST /api/products
+Content-Type: application/json
+
+{
+  "name": "Smoked Salmon",
+  "description": "Premium smoked salmon",
+  "unit_price": 24.99
+}
+```
+
+#### Create Order
+```bash
+POST /api/orders
+Content-Type: application/json
+
+{
+  "customer_id": "uuid",
+  "order_name": "Weekly Order",
+  "status": "pending",
+  "order_items": [
+    {
+      "product_id": "uuid",
+      "quantity": 2,
+      "weight_oz": 8.0,
+      "unit_price": 24.99
+    }
+  ]
+}
+```
 
 ## 🎨 UI Components
 
-The application uses shadcn/ui components with a custom design system:
+The application uses shadcn/ui components with a comprehensive design system:
 
-- **Cards**: Order and customer information display
-- **Buttons**: Actions and navigation
-- **Inputs**: Form fields and search
-- **Select**: Product selection dropdowns
+### Core Components
+- **Navigation**: Top navigation menu with responsive mobile support
+- **Cards**: Information display for customers, products, and orders
+- **Forms**: Complete CRUD forms with validation
+- **Buttons**: Actions, navigation, and interactive elements
+- **Inputs**: Form fields, search, and data entry
+- **Select**: Dropdowns for customer/product selection
+- **Dialogs**: Modal forms for create/edit operations
+- **Alert Dialogs**: Confirmation dialogs for delete operations
+- **Badges**: Status indicators and labels
 - **Separators**: Visual content division
+
+### CRUD-Specific Components
+- **CustomerForm**: Customer creation and editing with validation
+- **ProductForm**: Product management with pricing
+- **OrderForm**: Complex order creation with multiple items
+- **Search Components**: Real-time search across all entities
+- **Data Tables**: Responsive card layouts for data display
 
 ### Theme Support
 - Light/dark mode support via next-themes
 - CSS variables for consistent theming
 - Mobile-optimized responsive design
+- Consistent spacing and typography
 
 ## 🔒 Security Features
 
-- **Input Validation**: Client and server-side validation
-- **SQL Injection Protection**: Parameterized queries via Supabase
+- **Input Validation**: Client and server-side validation with Zod schemas
+- **SQL Injection Protection**: Parameterized queries via Aurora DSQL
 - **Environment Variables**: Secure configuration management
 - **Type Safety**: TypeScript prevents runtime errors
+- **IAM Authentication**: AWS IAM-based database authentication
+- **Form Validation**: Comprehensive validation on both client and server
+- **Error Handling**: Secure error handling without data exposure
 
 ## 🚀 Deployment
 
@@ -478,50 +609,6 @@ pnpm start
 - **Performance Monitoring**: Real-time metrics
 - **Code Splitting**: Lazy loading optimization
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🆘 Support
-
-For support and questions:
-- Create an issue in the GitHub repository
-- Check the documentation
-- Review the AWS Aurora DSQL documentation for database-related questions
-- Check AWS CloudWatch for monitoring and logs
-
-## 📋 Migration Summary
-
-### What Was Accomplished
-✅ **Complete Aurora DSQL Migration** - Migrated from Supabase to Amazon Aurora DSQL  
-✅ **Git-Based Deployment** - Successfully set up automatic Git deployment with AWS Amplify  
-✅ **GitHub Integration** - Connected repository for auto-build on push  
-✅ **IAM Authentication** - Configured proper AWS IAM roles and policies  
-✅ **Database Schema** - Created Aurora DSQL-compatible schema  
-✅ **Sample Data** - Populated database with test data  
-✅ **API Migration** - Updated all API routes to use Aurora DSQL  
-✅ **Dependency Resolution** - Fixed React 19 compatibility issues  
-✅ **Build Configuration** - Optimized amplify.yml for SSR deployment  
-✅ **Local Testing** - Verified all functionality works locally  
-✅ **Production Deployment** - Live application at https://d1ph18zqpzftga.amplifyapp.com  
-
-### Key Technical Achievements
-- **Aurora DSQL Client**: Custom client using AWS CLI for auth token generation
-- **Database Compatibility**: Adapted PostgreSQL schema for Aurora DSQL limitations
-- **Authentication**: AWS IAM-based authentication instead of traditional passwords
-- **Git-Based Deployment**: Automatic deployment pipeline with GitHub integration
-- **Dependency Management**: Resolved React 19 compatibility with legacy packages
-- **SSR Configuration**: Optimized Next.js SSR build for AWS Amplify
-- **Error Handling**: Comprehensive error handling and fallback mechanisms
-- **Auto-Build Pipeline**: Seamless CI/CD with automatic deployments on push
 
 ---
 

@@ -8,13 +8,13 @@ INSERT INTO customers (name, email, phone, address) VALUES
 ON CONFLICT DO NOTHING;
 
 -- Insert sample smoked fish products
-INSERT INTO products (name, description, unit_price) VALUES
-('Smoked Salmon', 'Premium Atlantic salmon, cold smoked', 24.99),
-('Smoked Trout', 'Fresh rainbow trout, applewood smoked', 18.99),
-('Smoked Whitefish', 'Great Lakes whitefish, traditional smoke', 16.99),
-('Smoked Mackerel', 'Atlantic mackerel, hickory smoked', 14.99),
-('Smoked Sturgeon', 'Premium sturgeon, delicate smoke', 34.99),
-('Smoked Cod', 'Fresh Atlantic cod, oak smoked', 19.99)
+INSERT INTO products (name, description, unit_price, units) VALUES
+('Smoked Salmon', 'Premium Atlantic salmon, cold smoked', 24.99, 'oz'),
+('Smoked Trout', 'Fresh rainbow trout, applewood smoked', 18.99, 'oz'),
+('Smoked Whitefish', 'Great Lakes whitefish, traditional smoke', 16.99, 'oz'),
+('Smoked Mackerel', 'Atlantic mackerel, hickory smoked', 14.99, 'oz'),
+('Smoked Sturgeon', 'Premium sturgeon, delicate smoke', 34.99, 'oz'),
+('Smoked Cod', 'Fresh Atlantic cod, oak smoked', 19.99, 'oz')
 ON CONFLICT DO NOTHING;
 
 -- Insert sample orders

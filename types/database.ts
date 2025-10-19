@@ -13,6 +13,7 @@ export interface Product {
   name: string
   description?: string
   unit_price: number
+  units: 'oz' | 'each' | 'lbs' | 'grams'
   created_at: string
 }
 

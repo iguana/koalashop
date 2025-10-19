@@ -10,13 +10,13 @@ INSERT INTO customers (id, name, email, phone, address) VALUES
 ('550e8400-e29b-41d4-a716-446655440005', 'David Brown', 'david.brown@email.com', '555-0105', '654 Maple Dr, Anywhere, USA');
 
 -- Insert sample products (smoked fish varieties)
-INSERT INTO products (id, name, description, unit_price) VALUES
-('660e8400-e29b-41d4-a716-446655440001', 'Smoked Salmon', 'Premium Atlantic salmon, cold-smoked with alder wood', 24.99),
-('660e8400-e29b-41d4-a716-446655440002', 'Smoked Trout', 'Fresh rainbow trout, hot-smoked with apple wood', 19.99),
-('660e8400-e29b-41d4-a716-446655440003', 'Smoked Mackerel', 'Atlantic mackerel, traditional hot-smoking method', 16.99),
-('660e8400-e29b-41d4-a716-446655440004', 'Smoked Whitefish', 'Great Lakes whitefish, cold-smoked specialty', 22.99),
-('660e8400-e29b-41d4-a716-446655440005', 'Smoked Herring', 'Norwegian herring, traditional Scandinavian style', 18.99),
-('660e8400-e29b-41d4-a716-446655440006', 'Smoked Cod', 'Atlantic cod, lightly smoked with sea salt', 21.99);
+INSERT INTO products (id, name, description, unit_price, units) VALUES
+('660e8400-e29b-41d4-a716-446655440001', 'Smoked Salmon', 'Premium Atlantic salmon, cold-smoked with alder wood', 24.99, 'oz'),
+('660e8400-e29b-41d4-a716-446655440002', 'Smoked Trout', 'Fresh rainbow trout, hot-smoked with apple wood', 19.99, 'oz'),
+('660e8400-e29b-41d4-a716-446655440003', 'Smoked Mackerel', 'Atlantic mackerel, traditional hot-smoking method', 16.99, 'oz'),
+('660e8400-e29b-41d4-a716-446655440004', 'Smoked Whitefish', 'Great Lakes whitefish, cold-smoked specialty', 22.99, 'oz'),
+('660e8400-e29b-41d4-a716-446655440005', 'Smoked Herring', 'Norwegian herring, traditional Scandinavian style', 18.99, 'oz'),
+('660e8400-e29b-41d4-a716-446655440006', 'Smoked Cod', 'Atlantic cod, lightly smoked with sea salt', 21.99, 'oz');
 
 -- Insert sample orders
 INSERT INTO orders (id, customer_id, order_name, status) VALUES

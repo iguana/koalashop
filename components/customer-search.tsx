@@ -22,7 +22,7 @@ export default function CustomerSearch({ onCustomerSelect }: CustomerSearchProps
     const loadAllCustomers = async () => {
       setIsLoading(true)
       try {
-        const response = await fetch("/api/customers/search?q=")
+        const response = await fetch("/api/customers")
         const data = await response.json()
 
         if (data.customers) {
@@ -50,24 +50,14 @@ export default function CustomerSearch({ onCustomerSelect }: CustomerSearchProps
       return
     }
 
-    const searchCustomers = async () => {
-      setIsLoading(true)
-      try {
-        const response = await fetch(`/api/customers/search?q=${encodeURIComponent(query)}`)
-        const data = await response.json()
-
-        if (data.customers) {
-          setFilteredCustomers(data.customers)
-        }
-      } catch (error) {
-        console.error("Error searching customers:", error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    const debounceTimer = setTimeout(searchCustomers, 300)
-    return () => clearTimeout(debounceTimer)
+    // Use local filtering for better performance
+    const filtered = allCustomers.filter(customer =>
+      customer.name.toLowerCase().includes(query.toLowerCase()) ||
+      customer.email?.toLowerCase().includes(query.toLowerCase()) ||
+      customer.phone?.includes(query)
+    )
+    
+    setFilteredCustomers(filtered)
   }, [query, allCustomers])
 
   useEffect(() => {

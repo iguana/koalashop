@@ -30,13 +30,26 @@ export default function OrderDetails({ order, customer, onBack }: OrderDetailsPr
     })
   }
 
-  const formatWeight = (weightOz: number) => {
-    if (weightOz >= 16) {
-      const pounds = Math.floor(weightOz / 16)
-      const remainingOz = weightOz % 16
-      return remainingOz > 0 ? `${pounds} lb ${remainingOz} oz` : `${pounds} lb`
+  const formatWeight = (weightOz: number, productUnits?: string) => {
+    const units = productUnits || 'oz'
+    
+    switch (units) {
+      case 'oz':
+        if (weightOz >= 16) {
+          const pounds = Math.floor(weightOz / 16)
+          const remainingOz = weightOz % 16
+          return remainingOz > 0 ? `${pounds} lb ${remainingOz} oz` : `${pounds} lb`
+        }
+        return `${weightOz} oz`
+      case 'lbs':
+        return `${weightOz} lbs`
+      case 'each':
+        return `${weightOz} items`
+      case 'grams':
+        return `${weightOz} grams`
+      default:
+        return `${weightOz} oz`
     }
-    return `${weightOz} oz`
   }
 
   return (
@@ -121,7 +134,7 @@ export default function OrderDetails({ order, customer, onBack }: OrderDetailsPr
                         </div>
                         <div className="text-right ml-3">
                           <div className="font-semibold text-foreground">{formatCurrency(item.total_price)}</div>
-                          <div className="text-sm text-muted-foreground">{formatCurrency(item.unit_price)} each</div>
+                          <div className="text-sm text-muted-foreground">{formatCurrency(item.unit_price)}/{item.product?.units || 'oz'}</div>
                         </div>
                       </div>
 
@@ -134,7 +147,7 @@ export default function OrderDetails({ order, customer, onBack }: OrderDetailsPr
                         </div>
                         <div>
                           <span className="text-muted-foreground">Weight</span>
-                          <div className="font-medium">{formatWeight(item.weight_oz)}</div>
+                          <div className="font-medium">{formatWeight(item.weight_oz, item.product?.units)}</div>
                         </div>
                       </div>
                     </div>

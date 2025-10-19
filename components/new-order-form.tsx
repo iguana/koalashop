@@ -97,6 +97,21 @@ export default function NewOrderForm({ customer, onBack, onOrderCreated }: NewOr
     }).format(amount)
   }
 
+  const getUnitLabel = (units: string) => {
+    switch (units) {
+      case 'oz':
+        return 'oz'
+      case 'lbs':
+        return 'lbs'
+      case 'each':
+        return 'items'
+      case 'grams':
+        return 'grams'
+      default:
+        return 'oz'
+    }
+  }
+
   const handleSaveOrder = async () => {
     if (!orderName.trim()) {
       alert("Please enter an order name")
@@ -240,7 +255,7 @@ export default function NewOrderForm({ customer, onBack, onOrderCreated }: NewOr
                                 <div className="flex items-center justify-between w-full">
                                   <span>{product.name}</span>
                                   <span className="ml-2 text-muted-foreground">
-                                    {formatCurrency(product.unit_price)}/oz
+                                    {formatCurrency(product.unit_price)}/{product.units}
                                   </span>
                                 </div>
                               </SelectItem>
@@ -281,7 +296,7 @@ export default function NewOrderForm({ customer, onBack, onOrderCreated }: NewOr
                         </div>
 
                         <div className="space-y-2">
-                          <Label>Weight (oz)</Label>
+                          <Label>Weight ({getUnitLabel(item.product?.units || 'oz')})</Label>
                           <Input
                             type="number"
                             min="0.1"
@@ -299,7 +314,7 @@ export default function NewOrderForm({ customer, onBack, onOrderCreated }: NewOr
                           <Separator />
                           <div className="flex items-center justify-between text-sm">
                             <span className="text-muted-foreground">Unit Price:</span>
-                            <span>{formatCurrency(item.unit_price)}/oz</span>
+                            <span>{formatCurrency(item.unit_price)}/{getUnitLabel(item.product?.units || 'oz')}</span>
                           </div>
                           <div className="flex items-center justify-between font-medium">
                             <span>Subtotal:</span>
